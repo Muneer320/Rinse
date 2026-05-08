@@ -4,14 +4,18 @@ Rinse is an Android focused photo review prototype built with Expo SDK 57. It gr
 
 ## Run
 
-Use Node.js 22.13 or newer and an Android device or emulator with Expo Go. A development build is recommended when checking native media deletion behavior.
+For a demo without build tools, download the APK from the [Android preview release](https://github.com/Muneer320/Rinse/releases/tag/v1.0.0-preview.1). Its signed EAS artifact passed the Android 16 emulator flow described below. Physical devices have not yet been verified.
+
+For source development, use Node.js 22.13 or newer and the Android SDK. Connect an Android phone with USB debugging enabled and accept its debugging prompt, or start an emulator. Build and install a debug version once:
 
 ```sh
 npm ci
-npx expo start
+npx expo run:android --device
 ```
 
-Open the QR code in Expo Go or press `a` for a running Android emulator. Grant photo library access, choose a month, and review a few test photos. Tap **Trash** to restore a marked photo or confirm permanent deletion. Android may present a separate system consent dialog before deleting media. Use disposable test photos for this demo.
+This starts the development server. Keep it running for Fast Refresh while editing JavaScript, TypeScript or styles. On later sessions, start it with `npx expo start --dev-client` and reopen the installed debug app. Native libraries, app permissions and SDK changes require another native build. The preview APK is a release build and does not receive local Fast Refresh updates. See [Expo's development build guide](https://docs.expo.dev/develop/development-builds/introduction/) for the optional `expo-dev-client` launcher and rebuild instructions. Expo Go does not use Rinse's own native permission configuration.
+
+Grant photo library access, choose a month, and review a few test photos. Tap **Trash** to restore a marked photo or confirm permanent deletion. Android may present a separate system consent dialog before deleting media. Use disposable test photos for this demo.
 
 For an installable preview APK, sign in to EAS and run `eas build --platform android --profile preview`. The production profile creates an Android App Bundle for store submission; no store release is claimed here. Build numbers are configured in `app.json` and the production EAS profile increments them.
 
@@ -40,6 +44,6 @@ Rinse stores reviewed photo IDs, Trash IDs and review counters in AsyncStorage o
 
 The counters represent review choices, not reclaimed storage. Rinse does not measure file size or show a space saved figure. It does not automatically purge Trash after 30 days; that item in the [original PRD](docs/PRD.md) remains a future idea because silent permanent deletion needs explicit product decisions and native testing. Large libraries still require a complete metadata scan before the month list is shown.
 
-The Android preview is a prototype. Transitive advisories remain in the Expo 57, Metro and router dependency tree; inspect `npm audit` before distribution. No Play Store submission, public privacy policy URL, device performance benchmark, or release APK is claimed unless listed in a verified release. See [Privacy](PRIVACY.md) and [Architecture](docs/Architecture.md).
+The Android preview is a prototype. Transitive advisories remain in the Expo 57, Metro and router dependency tree; inspect `npm audit` before distribution. No Play Store submission, public privacy policy URL or device performance benchmark is claimed. See [Privacy](PRIVACY.md) and [Architecture](docs/Architecture.md).
 
 MIT license; see [LICENSE](LICENSE).
