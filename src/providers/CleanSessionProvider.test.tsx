@@ -38,3 +38,15 @@ test('undo on the final photo restores an active session', async () => {
   expect(await getTrashItems()).toEqual([]);
   await unmount();
 });
+
+test('resumption tracks photo IDs when the gallery changes', async () => {
+  const { result, unmount } = await renderHook(() => useCleanSession(), { wrapper });
+  await act(async () => { await result.current.startSession('2026-10', [photo('a'), photo('b'), photo('c')]); });
+  await act(async () => { await result.current.swipeRight('a'); });
+  await act(async () => { result.current.endSession(); });
+  // A reviewed photo was removed and a new photo now sorts before the saved position.
+  await act(async () => { await result.current.startSession('2026-10', [photo('new'), photo('b'), photo('c')]); });
+  expect(result.current.getCurrentPhoto()?.id).toBe('new');
+  expect(result.current.getProgress().reviewed).toBe(0);
+  await unmount();
+});

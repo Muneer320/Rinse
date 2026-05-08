@@ -120,10 +120,10 @@ export default function CleanScreen() {
           <>
             {nextPhoto && (
               <View style={styles.nextCardContainer}>
-                <SwipeCard photo={nextPhoto} isTopCard={false} index={session.currentIndex + 1} onSwipeLeft={(id) => session.swipeLeft(id)} onSwipeRight={(id) => session.swipeRight(id)} />
+                <SwipeCard key={nextPhoto.id} photo={nextPhoto} isTopCard={false} index={session.currentIndex + 1} onSwipeLeft={(id) => session.swipeLeft(id)} onSwipeRight={(id) => session.swipeRight(id)} />
               </View>
             )}
-            <SwipeCard photo={currentPhoto} isTopCard={true} index={session.currentIndex} onSwipeLeft={(id, fn) => session.swipeLeft(id, fn)} onSwipeRight={(id) => session.swipeRight(id)} />
+            <SwipeCard key={currentPhoto.id} photo={currentPhoto} isTopCard={true} index={session.currentIndex} onSwipeLeft={(id, fn) => session.swipeLeft(id, fn)} onSwipeRight={(id) => session.swipeRight(id)} />
           </>
         ) : session.isComplete ? (
           <EmptyState icon="checkmark-circle-outline" title="All done!" subtitle="You've reviewed every photo in this month." />

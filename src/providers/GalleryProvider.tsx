@@ -104,9 +104,11 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
         } catch { }
 
         const session = await loadSession(key);
-        const reviewed = session?.swipes.length || 0;
-        const deleted = session?.swipes.filter(s => s.action === 'delete').length || 0;
-        const kept = session?.swipes.filter(s => s.action === 'keep').length || 0;
+        const photoIds = new Set(entry.ids);
+        const visibleSwipes = session?.swipes.filter(s => photoIds.has(s.assetId)) || [];
+        const reviewed = visibleSwipes.length;
+        const deleted = visibleSwipes.filter(s => s.action === 'delete').length;
+        const kept = visibleSwipes.filter(s => s.action === 'keep').length;
 
         monthGroups.push({
           key, year: parseInt(key.split('-')[0], 10), month: parseInt(key.split('-')[1], 10),

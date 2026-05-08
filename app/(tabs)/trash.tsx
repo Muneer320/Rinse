@@ -31,6 +31,7 @@ export default function TrashScreen() {
   useFocusEffect(useCallback(() => { void loadItems(); }, [loadItems]));
 
   const handleRestore = useCallback(async (assetId: string) => {
+    if (isDeleting) return;
     try {
       await removeFromTrash(assetId);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -39,32 +40,31 @@ export default function TrashScreen() {
       console.error('[TrashScreen] Restore failed:', error);
       Alert.alert('Could not restore', 'The photo is still in Trash. Please try again.');
     }
-  }, [loadItems]);
+  }, [isDeleting, loadItems]);
 
   const handleDeleteForever = useCallback((item: TrashItem) => {
+    if (isDeleting) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     Alert.alert('Delete Permanently', `Are you sure you want to permanently delete "${item.filename}"? This action cannot be undone.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete Forever', style: 'destructive', onPress: async () => {
-        try { const asset = new Asset(item.assetId); await asset.delete(); }
-        catch (e) {
-          console.error('[TrashScreen] Delete failed:', e);
-          try { const asset = new Asset(item.assetId); await Asset.delete([asset]); }
-          catch (e2) { console.error('[TrashScreen] Static delete also failed:', e2); Alert.alert('Error', 'Could not delete this photo.'); return; }
-        }
+        setIsDeleting(true);
         try {
+          await Asset.delete([new Asset(item.assetId)]);
           await removeFromTrash(item.assetId);
           await loadItems();
         } catch (error) {
-          console.error('[TrashScreen] Could not update Trash after deletion:', error);
-          Alert.alert('Photo deleted', 'The gallery removed the photo, but its Trash record could not be cleared.');
+          console.error('[TrashScreen] Delete did not finish:', error);
+          Alert.alert('Delete not completed', 'The item remains listed in Trash. Check your gallery before trying again.');
+        } finally {
+          setIsDeleting(false);
         }
       }},
     ]);
-  }, [loadItems]);
+  }, [isDeleting, loadItems]);
 
   const handleEmptyAll = useCallback(() => {
-    if (items.length === 0) return;
+    if (isDeleting || items.length === 0) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     Alert.alert('Empty Trash', `Are you sure you want to permanently delete all ${items.length} photo${items.length !== 1 ? 's' : ''}? This action cannot be undone.`, [
       { text: 'Cancel', style: 'cancel' },
@@ -82,7 +82,7 @@ export default function TrashScreen() {
         }
       }},
     ]);
-  }, [items, loadItems]);
+  }, [isDeleting, items, loadItems]);
 
   const renderItem = ({ item }: { item: TrashItem }) => (
     <View style={styles.trashItem}>
@@ -96,11 +96,11 @@ export default function TrashScreen() {
         <Text style={styles.itemDate}>{item.monthLabel} - {formatRelativeTime(item.deletedAt)}</Text>
       </View>
       <View style={styles.itemActions}>
-        <Pressable style={[styles.actionButton, styles.restoreButton]} onPress={() => handleRestore(item.assetId)}>
+        <Pressable style={[styles.actionButton, styles.restoreButton]} disabled={isDeleting} onPress={() => handleRestore(item.assetId)}>
           <Ionicons name="arrow-undo-outline" size={20} color={Colors.primary} />
           <Text style={[styles.actionText, { color: Colors.primary }]}>Restore</Text>
         </Pressable>
-        <Pressable style={[styles.actionButton, styles.deleteButton]} onPress={() => handleDeleteForever(item)}>
+        <Pressable style={[styles.actionButton, styles.deleteButton]} disabled={isDeleting} onPress={() => handleDeleteForever(item)}>
           <Ionicons name="trash-outline" size={20} color={Colors.delete} />
           <Text style={[styles.actionText, { color: Colors.delete }]}>Delete</Text>
         </Pressable>

@@ -74,11 +74,23 @@ export function CleanSessionProvider({ children }: { children: React.ReactNode }
   const startSession = useCallback(async (key: string, photoList: PhotoAsset[]) => {
     clearPending();
     const saved = await loadSession(key);
-    const index = saved && saved.currentIndex <= photoList.length ? saved.currentIndex : 0;
-    const actions = saved && index > 0 ? saved.swipes : [];
-    state.current = { monthKey: key, photos: photoList, index, swipes: actions, pending: null, busy: false };
+    const photoById = new Map(photoList.map(photo => [photo.id, photo]));
+    const reviewedIds = new Set<string>();
+    const reviewedPhotos: PhotoAsset[] = [];
+    const actions: SwipeAction[] = [];
+    for (const action of saved?.swipes || []) {
+      const photo = photoById.get(action.assetId);
+      if (photo && !reviewedIds.has(photo.id)) {
+        reviewedIds.add(photo.id);
+        reviewedPhotos.push(photo);
+        actions.push(action);
+      }
+    }
+    const orderedPhotos = [...reviewedPhotos, ...photoList.filter(photo => !reviewedIds.has(photo.id))];
+    const index = reviewedPhotos.length;
+    state.current = { monthKey: key, photos: orderedPhotos, index, swipes: actions, pending: null, busy: false };
     setMonthKey(key);
-    setPhotos(photoList);
+    setPhotos(orderedPhotos);
     setCurrentIndex(index);
     setSwipes(actions);
     setIsComplete(index >= photoList.length && photoList.length > 0);
