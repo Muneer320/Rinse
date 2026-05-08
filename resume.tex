@@ -1,0 +1,165 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[margin=0.6in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{4pt}{2pt}
+
+\setlist[itemize]{noitemsep, topsep=1pt, leftmargin=1.6em}
+
+\begin{document}
+
+% HEADER
+\begin{center}
+    {\LARGE \textbf{Muneer Alam}} \\[2pt]
+    {\normalsize Software Engineer \textbar{} React Native \textbar{} Full Stack} \\[4pt]
+    \href{mailto:muneer.alam320@gmail.com}{muneer.alam320@gmail.com} \quad | \quad
+    +91-9162392229 \\
+    \href{https://github.com/muneer320}{github.com/muneer320} \quad | \quad
+    \href{https://muneer320.tech}{muneer320.tech}
+\end{center}
+
+\vspace{1mm}
+
+% EDUCATION
+\section*{Education}
+
+\textbf{Birla Institute of Technology and Science, Pilani (BITS Pilani)} \hfill 2025 -- 2028 \\
+Bachelor of Science in Computer Science \hfill GPA: 9.29
+
+\vspace{1mm}
+
+% SKILLS
+\section*{Skills}
+
+\textbf{Languages:} Python, TypeScript, JavaScript, Go, SQL, Bash, Java \\
+\textbf{Mobile:} React Native, Expo, Expo Router, Reanimated, Gesture Handler, AsyncStorage \\
+\textbf{Frontend:} React, Next.js, TailwindCSS, Zustand, React Query, GSAP \\
+\textbf{Backend:} Node.js, Express.js, NestJS, FastAPI, REST APIs, WebSockets, GraphQL \\
+\textbf{Databases:} PostgreSQL, MySQL, MongoDB, Supabase, Firebase \\
+\textbf{Cloud \& DevOps:} AWS, Vercel, Netlify, Docker, Linux, Windows
+
+\vspace{1mm}
+
+% EXPERIENCE
+\section*{Experience}
+
+\textbf{ParaPixel DigiServices} \hfill Apr 2025 -- Mar 2026 \\
+\textit{Lead Developer}
+\begin{itemize}[leftmargin=2.2em]
+    \item Delivered \textbf{10+} client applications including SaaS platforms and REST APIs, collectively serving \textbf{50,000+ users/month}.
+    \item Architected backend systems with API gateway patterns, reducing average response time by \textbf{40\%} across the product suite.
+    \item Migrated 3 legacy PHP codebases to React and Node.js, cutting page load times from \textbf{4.2s to 1.7s}.
+    \item Created a reusable component library and internal npm packages, accelerating feature delivery by \textbf{2--3x}.
+    \item Shipped features under tight client deadlines spanning architecture, implementation, testing, and deployment.
+\end{itemize}
+
+\vspace{1mm}
+
+\textbf{Grabware Inc.} \hfill Oct 2025 -- Present \\
+\textit{Full Stack Developer (Part-time, Contractual)}
+\begin{itemize}[leftmargin=2.2em]
+    \item Rebuilt a monolithic legacy platform into a modular MERN stack, reducing API response time from \textbf{780ms to 230ms}.
+    \item Refactored a tightly coupled backend into microservice-aligned modules, scaling concurrent users from \textbf{150 to 600}.
+    \item Optimized database queries and introduced connection pooling, reducing per-page queries from \textbf{38 to 14} while maintaining \textbf{10,000+} monthly active users.
+    \item Containerized the stack with Docker for reproducible local development and streamlined CI/CD deployments.
+\end{itemize}
+
+\vspace{1mm}
+
+% PROJECTS
+\section*{Projects}
+
+\textbf{Rinse — Privacy-First Gallery Cleaner} \quad
+\href{https://github.com/Muneer320/Rinse}{GitHub}
+\begin{itemize}[leftmargin=2.2em]
+    \item Engineered a Tinder-style photo cleanup app in \textbf{React Native} with \textbf{Expo SDK 57}, processing photos \textbf{100\% on-device} with zero network requests.
+    \item Implemented \textbf{60fps} card-swipe animations using \textbf{Reanimated} worklets on the UI thread and \textbf{Gesture Handler} pan gestures with velocity-based snapping.
+    \item Integrated \textbf{expo-media-library} class-based API (\texttt{Asset}, \texttt{Query}, \texttt{AssetField}) to handle \textbf{10K+ photo galleries} via paginated metadata queries and lazy per-month loading.
+    \item Added session persistence via \textbf{AsyncStorage}, a 5-second undo system with toast notifications, a trash review pipeline, and haptic feedback via \textbf{expo-haptics}.
+    \item Designed a dark glassmorphism UI with animated progress rings, celebration overlays, and a peek-a-boo card stack.
+    \textit{Tech: React Native, Expo, Reanimated, Gesture Handler, AsyncStorage, Haptics}
+\end{itemize}
+
+\vspace{1mm}
+
+\textbf{exHacker — Multi-Agent AI Hackathon Co-Pilot} \quad
+\href{https://github.com/Muneer320/exhacker-frontend}{GitHub} \quad
+\href{https://exhacker-frontend.vercel.app}{Live}
+\begin{itemize}[leftmargin=2.2em]
+    \item Architected a \textbf{multi-agent AI system} that orchestrates LLM-driven agents for autonomous hackathon workflow generation, project planning, and code scaffolding.
+    \item Designed an agent pipeline with planning, execution, and review phases---specialized agents handle ideation, architecture design, code generation, and PR reviews.
+    \item Deployed a React frontend on \textbf{Vercel} with a \textbf{Supabase} backend, enforcing a \textbf{300-line file limit} and comprehensive risk documentation per module.
+    \item Engineered the orchestration layer to support parallel task decomposition and context-aware decision making across multiple LLM calls.
+    \textit{Tech: React, Vercel, Supabase, TypeScript, LLM Orchestration}
+\end{itemize}
+
+\vspace{1mm}
+
+\textbf{Vector — AI-Powered Interview Platform} \quad
+\href{https://github.com/Muneer320/Vector}{GitHub}
+\begin{itemize}[leftmargin=2.2em]
+    \item Engineered an adaptive interview platform using \textbf{OpenAI APIs} for dynamic question generation, real-time answer evaluation, and performance analytics.
+    \item Architected a microservice backend in \textbf{FastAPI} with \textbf{PostgreSQL}, supporting \textbf{1,000+ question variants} across multiple domains and difficulty tiers.
+    \item Designed a role-based flow where interviewers create sessions with custom parameters and candidates receive tailored adaptive questions.
+    \item Serving \textbf{300+ students} with detailed post-session feedback, scoring dashboards, and personalized improvement recommendations.
+    \textit{Tech: React, Next.js, FastAPI, PostgreSQL, OpenAI}
+\end{itemize}
+
+\vspace{1mm}
+
+\textbf{BOOP — Automated Puzzle Book Generator} \quad
+\href{https://github.com/Muneer320/BOOP}{GitHub}
+\begin{itemize}[leftmargin=2.2em]
+    \item Engineered a dual-interface (CLI + React) pipeline that generates printable puzzle books programmatically from configuration files.
+    \item Built a fully parameterized generation engine controlling word pools, grid dimensions, puzzle counts, difficulty modes, and output layouts.
+    \item Generates \textbf{200+ puzzles across 17 categories} in under \textbf{8 seconds} via optimized backtracking algorithms and batch \textbf{PDF} rendering with \textbf{ReportLab}.
+    \textit{Tech: Python, React, ReportLab, PDF Generation}
+\end{itemize}
+
+\vspace{1mm}
+
+\textbf{Portfolio — Interactive OS-Inspired Terminal} \quad
+\href{https://muneer320.tech}{Live}
+\begin{itemize}[leftmargin=2.2em]
+    \item Created an interactive portfolio simulating an \textbf{Arch Linux desktop} with draggable windows, a functional terminal emulator, and system-like UI components.
+    \item Reached \textbf{5,000+ visitors} in the first month through organic developer community sharing.
+    \textit{Tech: Next.js, React, TailwindCSS, GSAP}
+\end{itemize}
+
+\vspace{1mm}
+
+% CERTIFICATIONS
+\section*{Certifications}
+
+\begin{itemize}[leftmargin=2.2em]
+    \item Python Full Course (GeeksforGeeks, 2025)
+    \item AWS APAC: Solutions Architecture Simulation (Forage, 2025)
+    \item Tata Data Visualisation: Business Insights Simulation (Forage, 2025)
+\end{itemize}
+
+\vspace{1mm}
+
+% HONORS
+\section*{Honors \& Awards}
+
+\begin{itemize}[leftmargin=2.2em]
+    \item State Rank 2 --- International Olympiad of English Language (IOEL, 2023)
+    \item State Rank 59 --- International Olympiad of Science (IOS, 2022)
+    \item Intel Software Innovator (2024)
+\end{itemize}
+
+\vspace{1mm}
+
+% VOLUNTEER
+\section*{Volunteer Experience}
+
+\begin{itemize}[leftmargin=2.2em]
+    \item Volunteer --- Cancer Aid Society: Contributed to awareness campaigns; awarded Gold Medal.
+    \item Volunteer --- HelpAge India: Supported fundraising and elderly care initiatives.
+\end{itemize}
+
+\end{document}

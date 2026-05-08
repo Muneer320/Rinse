@@ -130,51 +130,40 @@ npx expo start
 
 ## 📐 Architecture
 
-```
-┌─────────────────────────────────────────────┐
-│                  App Entry                    │
-│              app/_layout.tsx                  │
-│     ┌─────────────────────────────────┐      │
-│     │        GalleryProvider            │      │
-│     │   Permissions • Month Groups     │      │
-│     │   Photo Cache • Stats            │      │
-│     └──────────────┬──────────────────┘      │
-│                    │                          │
-│     ┌──────────────┴──────────────────┐      │
-│     │     CleanSessionProvider          │      │
-│     │   Swipe State • Undo Timer       │      │
-│     │   Progress • Persistence         │      │
-│     └──────────────┬──────────────────┘      │
-│                    │                          │
-│     ┌──────────────┴──────────────────┐      │
-│     │         expo-router               │      │
-│     │   ┌──────┐  ┌──────┐  ┌───────┐ │      │
-│     │   │ Home │  │Trash │  │ Clean │ │      │
-│     │   │Screen│  │Screen│  │ Screen│ │      │
-│     │   └──────┘  └──────┘  └───────┘ │      │
-│     └─────────────────────────────────┘      │
-└─────────────────────────────────────────────┘
+### Component Hierarchy
+
+```mermaid
+graph TD
+    A[App Entry: app/_layout.tsx] --> B[GalleryProvider]
+    A --> C[CleanSessionProvider]
+    B --> D[Permissions]
+    B --> E[Month Groups]
+    B --> F[Photo Cache]
+    B --> G[Stats]
+    C --> H[Swipe State]
+    C --> I[Undo Timer]
+    C --> J[Progress]
+    C --> K[Persistence]
+    A --> L[expo-router]
+    L --> M[Home Screen]
+    L --> N[Trash Screen]
+    L --> O[Clean Screen]
 ```
 
 ### Data Flow
 
-```
-Device MediaStore
-    │
-    ▼
-expo-media-library (Query pagination, 100 assets/page)
-    │
-    ▼
-GalleryProvider (groups by month, caches metadata)
-    │
-    ▼
-CleanSessionProvider (tracks swipe position per month)
-    │
-    ▼
-SwipeCard (Reanimated worklets on UI thread)
-    │
-    ├── Swipe Left  → UndoToast (5s) → TrashStorage
-    └── Swipe Right → Mark kept → Advance
+```mermaid
+flowchart LR
+    A[Device MediaStore] --> B[expo-media-library]
+    B -->|Query pagination 100/page| C[GalleryProvider]
+    C -->|Groups by month| D[Month Metadata Cache]
+    C -->|Lazy loads per month| E[CleanSessionProvider]
+    E -->|Tracks position| F[SwipeCard]
+    F -->|Swipe Left| G[UndoToast 5s]
+    G -->|Timer expires| H[TrashStorage]
+    F -->|Swipe Right| I[Mark Kept]
+    I -->|Advance| F
+    H -->|User confirms| J[Asset.delete]
 ```
 
 ### Key Design Decisions
