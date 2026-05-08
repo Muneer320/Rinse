@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Rinse: a photo with a clean sweep</title>
+  <g transform="rotate(-9 492 518)">
+    <rect x="244" y="276" width="492" height="492" rx="112" fill="#6C63FF"/>
+    <circle cx="390" cy="430" r="46" fill="#F6F4FF"/>
+    <path d="M300 626c86-122 144-150 222-59 58 68 111 83 158-2v91c0 32-26 58-58 58H358c-32 0-58-26-58-58Z" fill="#F6F4FF"/>
+    <path d="M304 650c119 21 239 7 370-45" fill="none" stroke="#C9C5FF" stroke-width="21" stroke-linecap="round"/>
+  </g>
+  <path d="M748 230c10 48 27 65 75 75-48 10-65 27-75 75-10-48-27-65-75-75 48-10 65-27 75-75Z" fill="#C9C5FF"/>
+</svg>

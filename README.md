@@ -1,5 +1,7 @@
 # Rinse
 
+<img src="assets/icon.png" width="96" alt="Rinse photo and clean sweep logo">
+
 Rinse is an Android focused photo review prototype built with Expo SDK 57. It groups the device photo library by month. Swipe right to keep a photo, or left to mark it for deletion. A marked photo is stored in Rinse's local Trash list and remains in the device gallery until you explicitly confirm permanent deletion. The latest left swipe can be undone for five seconds or until the next review choice; older marked photos can be restored from Trash later. Rinse does not upload gallery photos.
 
 ## Run
