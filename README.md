@@ -6,7 +6,7 @@ Rinse is an Android focused photo review prototype built with Expo SDK 57. It gr
 
 ## Run
 
-For a demo without build tools, download the APK from the [Android preview release](https://github.com/Muneer320/Rinse/releases/tag/v1.0.0-preview.2). The signed APK was installed and launched on an Android 16 emulator. It includes Rinse's photo and clean-sweep logo; the editable source is [logo-mark.svg](assets/logo-mark.svg).
+For a demo without build tools, download the APK from the [Android preview release](https://github.com/Muneer320/Rinse/releases/tag/v1.0.0-preview.3). The signed APK was installed and launched on an Android 16 emulator. It includes Rinse's photo and clean-sweep logo; the editable source is [logo-mark.svg](assets/logo-mark.svg).
 
 For source development, use Node.js 22.13 or newer and the Android SDK. Connect an Android phone with USB debugging enabled and accept its debugging prompt, or start an emulator. Build and install a debug version once:
 
