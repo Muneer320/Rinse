@@ -6,7 +6,7 @@ Rinse is an Android focused photo review prototype built with Expo SDK 57. It gr
 
 ## Run
 
-For a demo without build tools, download the APK from the [Android preview release](https://github.com/Muneer320/Rinse/releases/tag/v1.0.0-preview.1). Its signed EAS artifact passed the Android 16 emulator flow described below. Physical devices have not yet been verified.
+For a demo without build tools, download the APK from the [Android preview release](https://github.com/Muneer320/Rinse/releases/tag/v1.0.0-preview.2). The signed APK was installed and launched on an Android 16 emulator. It includes Rinse's photo and clean-sweep logo; the editable source is [logo-mark.svg](assets/logo-mark.svg).
 
 For source development, use Node.js 22.13 or newer and the Android SDK. Connect an Android phone with USB debugging enabled and accept its debugging prompt, or start an emulator. Build and install a debug version once:
 
@@ -30,7 +30,7 @@ npx expo-doctor
 npx expo export --platform android
 ```
 
-The tests cover consecutive left swipes, persistent Trash records, session resumption after the first swipe and after the gallery changes, and Undo on the last photo. An Android 16 emulator run also verified photo permission, real swipes, process restart, final-photo Undo, completion, Restore, cancelled deletion, single deletion, one batch consent request for two photos, and refreshed gallery counts. It used disposable images. Physical devices and iOS have not been verified.
+The tests cover consecutive left swipes, persistent Trash records, session resumption after the first swipe and after the gallery changes, and Undo on the last photo. An Android 16 emulator run also verified photo permission, real swipes, process restart, final-photo Undo, completion, Restore, cancelled deletion, single deletion, one batch consent request for two photos, and refreshed gallery counts. It used disposable images. A debug build also launched on a physical Android 16 phone and received live UI edits over USB. Batch deletion on that phone was rejected by Android MediaStore with `Invalid Uri`; that path needs further investigation. iOS has not been verified.
 
 ## Demo screens
 
