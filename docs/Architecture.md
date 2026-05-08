@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-Rinse is a React Native app built with Expo SDK 57. It uses a simple, layered architecture optimized for on-device photo management with zero network calls.
+Rinse is a React Native app built with Expo SDK 57. Its gallery handling and app data storage run on-device; Expo development and build tooling can use network services.
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -78,11 +78,11 @@ CleanSessionProvider starts session
             ▼
         User swipes
             │
-            ├── Left → swipeLeft → haptic → add to trash (delayed) → advance
+            ├── Left → swipeLeft → add to local trash → advance → 5-second Undo window
             │
             ├── Right → swipeRight → haptic → record keep → advance
             │
-            └── Undo → cancel trash timeout → revert index
+            └── Undo → remove local trash record → revert index
                     │
                     ▼
                 Session complete
@@ -117,8 +117,8 @@ This avoids the deprecated `getAssetsAsync()` function.
 
 ### 3.2 Two-Phase Asset Loading
 
-1. **Phase 1 (fast):** Load all asset metadata (id + creationTime) via `exeForMetadata()` — this is lightweight and fast
-2. **Phase 2 (lazy):** When entering a month, load full PhotoAsset details (uri, filename, width, height, mediaType) for only that month's assets
+1. **Phase 1:** Load all asset metadata (id + creationTime) via `exeForMetadata()`. Large libraries still need a complete scan before the month list appears.
+2. **Phase 2:** When entering a month, load full PhotoAsset details (uri, filename, width, height, mediaType) for only that month's assets, in bounded batches.
 
 ### 3.3 Session Persistence
 
@@ -136,15 +136,16 @@ interface SessionState {
 
 On return, the session resumes from `currentIndex` with all previous swipes intact.
 
-### 3.4 Trash with Delayed Commit
+### 3.4 Durable Trash and Undo
 
-When a user swipes delete, the asset is NOT immediately moved to trash. Instead:
+When a user swipes left, the app first writes a record to its local Trash list. The gallery file stays in place. Then:
 
-1. A toast appears with a 5-second undo timer
-2. If the timer expires → the asset is added to trash
-3. If the user taps "Undo" → the timer is cancelled and the asset stays
+1. A toast offers Undo for five seconds.
+2. If the timer expires, the record remains in Trash for later review.
+3. If the user taps Undo, the record is removed and the card returns.
+4. Only explicit confirmation in the Trash screen asks the system to delete a gallery file. Empty All uses one batch request and keeps the records if it fails.
 
-This prevents accidental deletes from causing data loss.
+Trash writes are serialized so rapid swipes do not overwrite each other's records. There is no automatic purge.
 
 ### 3.5 Animated Card Stack
 
@@ -174,7 +175,7 @@ The `v1` prefix allows future schema migrations.
 | expo-media-library | Photo library access (class-based API) |
 | expo-image | Fast, cached image rendering |
 | expo-haptics | Tactile feedback on swipes |
-| react-native-reanimated | Smooth 60fps card animations |
+| react-native-reanimated | Card animations on the UI thread; frame rate has not been measured |
 | react-native-gesture-handler | Pan gesture detection |
 | @react-native-async-storage/async-storage | Local persistence |
 | react-native-safe-area-context | Safe area insets |
@@ -196,10 +197,10 @@ Rinse App (device)
     │
     ├── AsyncStorage → Local device storage only
     │
-    └── ❌ No network calls
+    └── No gallery-photo upload in app code
          ❌ No analytics
          ❌ No cloud sync
          ❌ No telemetry
 ```
 
-The app has zero outbound network capability. All data processing is 100% on-device.
+The app code does not send gallery photos or review metadata to a server. Expo development tooling and EAS builds may contact Expo services to deliver code and builds.

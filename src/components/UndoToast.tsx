@@ -4,16 +4,14 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from '
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Colors, Spacing, BorderRadius, Typography } from '../utils/theme';
-import { UNDO_TIMEOUT_MS } from '../utils/constants';
 
 interface UndoToastProps {
   visible: boolean;
   message?: string;
   onUndo: () => void;
-  onDismiss: () => void;
 }
 
-export function UndoToast({ visible, message = 'Photo deleted', onUndo, onDismiss }: UndoToastProps) {
+export function UndoToast({ visible, message = 'Photo marked for deletion', onUndo }: UndoToastProps) {
   const translateY = useSharedValue(100);
   const opacity = useSharedValue(0);
 
@@ -21,8 +19,6 @@ export function UndoToast({ visible, message = 'Photo deleted', onUndo, onDismis
     if (visible) {
       translateY.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) });
       opacity.value = withTiming(1, { duration: 200 });
-      const timer = setTimeout(() => onDismiss(), UNDO_TIMEOUT_MS);
-      return () => clearTimeout(timer);
     } else {
       translateY.value = withTiming(100, { duration: 200 });
       opacity.value = withTiming(0, { duration: 150 });

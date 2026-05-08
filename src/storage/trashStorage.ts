@@ -2,45 +2,37 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../utils/constants';
 import type { TrashItem } from '../utils/types';
 
+let pendingWrite: Promise<void> = Promise.resolve();
+
+async function readItems(): Promise<TrashItem[]> {
+  const data = await AsyncStorage.getItem(STORAGE_KEYS.TRASH);
+  return data ? JSON.parse(data) as TrashItem[] : [];
+}
+
+function updateItems(change: (items: TrashItem[]) => TrashItem[]): Promise<void> {
+  const operation = pendingWrite.then(async () => {
+    const items = await readItems();
+    await AsyncStorage.setItem(STORAGE_KEYS.TRASH, JSON.stringify(change(items)));
+  });
+  pendingWrite = operation.catch(() => {});
+  return operation;
+}
+
 export async function getTrashItems(): Promise<TrashItem[]> {
-  try {
-    const data = await AsyncStorage.getItem(STORAGE_KEYS.TRASH);
-    if (!data) return [];
-    return JSON.parse(data) as TrashItem[];
-  } catch (error) {
-    console.error('[trashStorage] Failed to get trash items:', error);
-    return [];
-  }
+  await pendingWrite;
+  return readItems();
 }
 
 export async function addToTrash(item: TrashItem): Promise<void> {
-  try {
-    const items = await getTrashItems();
-    if (!items.some(i => i.assetId === item.assetId)) {
-      items.push(item);
-      await AsyncStorage.setItem(STORAGE_KEYS.TRASH, JSON.stringify(items));
-    }
-  } catch (error) {
-    console.error('[trashStorage] Failed to add to trash:', error);
-  }
+  await updateItems(items => items.some(i => i.assetId === item.assetId) ? items : [...items, item]);
 }
 
 export async function removeFromTrash(assetId: string): Promise<void> {
-  try {
-    const items = await getTrashItems();
-    const filtered = items.filter(i => i.assetId !== assetId);
-    await AsyncStorage.setItem(STORAGE_KEYS.TRASH, JSON.stringify(filtered));
-  } catch (error) {
-    console.error('[trashStorage] Failed to remove from trash:', error);
-  }
+  await updateItems(items => items.filter(i => i.assetId !== assetId));
 }
 
 export async function emptyTrash(): Promise<void> {
-  try {
-    await AsyncStorage.setItem(STORAGE_KEYS.TRASH, JSON.stringify([]));
-  } catch (error) {
-    console.error('[trashStorage] Failed to empty trash:', error);
-  }
+  await updateItems(() => []);
 }
 
 export async function getTrashCount(): Promise<number> {

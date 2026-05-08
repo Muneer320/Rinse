@@ -1,9 +1,7 @@
 export const STORAGE_VERSION = 'v1';
 export const SWIPE_THRESHOLD = 0.33;
 export const UNDO_TIMEOUT_MS = 5000;
-export const CARDS_TO_PRELOAD = 3;
 export const PHOTOS_PER_PAGE = 100;
-export const TRASH_AUTO_PURGE_DAYS = 30;
 
 export const STORAGE_KEYS = {
   SESSION: (monthKey: string) => `rinse:${STORAGE_VERSION}:session:${monthKey}`,

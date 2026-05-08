@@ -6,7 +6,6 @@ import { MonthCard } from '../../src/components/MonthCard';
 import { PermissionGate } from '../../src/components/PermissionGate';
 import { EmptyState } from '../../src/components/EmptyState';
 import { Colors, Spacing, Typography } from '../../src/utils/theme';
-import { formatFileSize } from '../../src/utils/formatters';
 
 export default function MonthListScreen() {
   const { permissionStatus, requestPermission, months, isLoading, error, refresh, stats } = useGallery();
@@ -56,12 +55,7 @@ export default function MonthListScreen() {
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={[styles.statValue, { color: Colors.delete }]}>{stats.totalDeleted}</Text>
-            <Text style={styles.statLabel}>Deleted</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{formatFileSize(stats.totalSpaceFreed)}</Text>
-            <Text style={styles.statLabel}>Saved</Text>
+            <Text style={styles.statLabel}>Marked</Text>
           </View>
         </View>
       )}

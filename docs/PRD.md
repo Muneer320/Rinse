@@ -4,7 +4,7 @@
 
 ## 1. Overview
 
-Rinse is a mobile application that helps users declutter their photo libraries using a familiar swipe-based interface (inspired by Tinder). Photos are grouped by month and presented one at a time as draggable cards. Users swipe left to delete, right to keep. The app tracks progress, provides undo capabilities, and maintains a trash bin for safe deletion with auto-purge.
+Rinse is a mobile application that helps users review their photo libraries using a swipe interface. Photos are grouped by month and presented one at a time as draggable cards. Users swipe left to mark a photo for local Trash review, right to keep. Permanent deletion requires a separate confirmation. Automatic purge is a proposed feature and is not implemented.
 
 ## 2. Problem Statement
 
@@ -78,14 +78,14 @@ Rinse is a mobile application that helps users declutter their photo libraries u
 | 18 | As a user, I want to see all items in my trash | P0 |
 | 19 | As a user, I want to restore items from trash | P0 |
 | 20 | As a user, I want to empty my trash | P0 |
-| 21 | As a user, I want items to auto-purge from trash after 30 days | P1 |
+| 21 | As a user, I want items to auto-purge from trash after 30 days (not implemented; would require explicit consent and native testing) | P1 |
 
 ### Stats
 
 | # | Story | Priority |
 |---|-------|----------|
 | 22 | As a user, I want to see total photos reviewed, deleted, kept | P1 |
-| 23 | As a user, I want to see space freed estimates | P2 |
+| 23 | As a user, I want to see space freed estimates (not implemented; no reliable size data) | P2 |
 
 ## 6. Design Specifications
 
@@ -127,7 +127,7 @@ Rinse is a mobile application that helps users declutter their photo libraries u
 
 ### Privacy
 
-- No network calls
+- No gallery-photo or review-metadata uploads in app code; Expo development and build services may use the network
 - No analytics/tracking
 - No cloud storage
 - All timestamps stored as Unix epoch ms
@@ -142,4 +142,4 @@ Rinse is a mobile application that helps users declutter their photo libraries u
 | M4 | UI Components (SwipeCard, MonthCard, etc.) | ✅ Done |
 | M5 | Screens (Months list, Clean session, Trash) | ✅ Done |
 | M6 | Integration & Navigation | ✅ Done |
-| M7 | Testing & Polish | 🔲 TBD |
+| M7 | Testing & Polish | In progress: storage/session tests and Android bundle pass; native photo flow still requires emulator verification |

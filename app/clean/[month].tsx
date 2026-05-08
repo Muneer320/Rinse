@@ -147,7 +147,7 @@ export default function CleanScreen() {
           </Pressable>
         </View>
       )}
-      <UndoToast visible={!!session.pendingUndo} onUndo={() => session.undoDelete()} onDismiss={() => {}} />
+      <UndoToast visible={!!session.pendingUndo} onUndo={() => session.undoDelete()} />
       <CelebrationOverlay visible={showCelebration} monthLabel={getMonthLabel(month)} onDismiss={handleCelebrationDismiss} />
     </SafeAreaView>
   );

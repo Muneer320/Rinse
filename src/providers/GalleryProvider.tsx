@@ -43,7 +43,7 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
 
   const requestPermission = useCallback(async () => {
     try {
-      const response = await requestPermissionsAsync();
+      const response = await requestPermissionsAsync(false, ['photo']);
       setPermissionStatus(response.status);
       setAccessPrivileges(response.accessPrivileges || null);
       if (response.status === 'granted') await loadMonths();
@@ -57,7 +57,7 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const permResponse = await getPermissionsAsync();
+      const permResponse = await getPermissionsAsync(false, ['photo']);
       if (permResponse.status !== 'granted') {
         setPermissionStatus(permResponse.status);
         setAccessPrivileges(permResponse.accessPrivileges || null);
@@ -67,7 +67,7 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
       setPermissionStatus(permResponse.status);
       setAccessPrivileges(permResponse.accessPrivileges || null);
 
-      const allMeta: Array<{ id: string; filename: string | null; creationTime: number | null }> = [];
+      const monthMap = new Map<string, { ids: string[] }>();
       let offset = 0;
       let hasMore = true;
 
@@ -81,18 +81,13 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
 
         if (results.length === 0) { hasMore = false; break; }
         for (const meta of results) {
-          allMeta.push({ id: meta.id, filename: meta.filename, creationTime: meta.creationTime });
+          if (meta.creationTime === null) continue;
+          const monthKey = getMonthKey(meta.creationTime);
+          if (!monthMap.has(monthKey)) monthMap.set(monthKey, { ids: [] });
+          monthMap.get(monthKey)!.ids.push(meta.id);
         }
         if (results.length < PHOTOS_PER_PAGE) hasMore = false;
         else offset += PHOTOS_PER_PAGE;
-      }
-
-      const monthMap = new Map<string, { ids: string[]; creationTimes: number[] }>();
-      for (const meta of allMeta) {
-        if (meta.creationTime === null) continue;
-        const monthKey = getMonthKey(meta.creationTime);
-        if (!monthMap.has(monthKey)) monthMap.set(monthKey, { ids: [], creationTimes: [] });
-        monthMap.get(monthKey)!.ids.push(meta.id);
       }
 
       const sortedKeys = sortMonthKeysDescending(Array.from(monthMap.keys()));
@@ -135,18 +130,22 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
     const month = months.find(m => m.key === monthKey);
     if (!month) return [];
     const photos: PhotoAsset[] = [];
-    for (const assetId of month.assetIds) {
-      try {
-        const asset = new Asset(assetId);
-        const [uri, filename, width, height, creationTime, mediaType] = await Promise.all([
-          asset.getUri(), asset.getFilename(),
-          asset.getWidth().catch(() => null), asset.getHeight().catch(() => null),
-          asset.getCreationTime(), asset.getMediaType(),
-        ]);
-        photos.push({ id: assetId, uri, filename, width, height, creationTime: creationTime || 0, mediaType });
-      } catch (e) {
-        console.error('[GalleryProvider] Failed to load asset:', assetId, e);
-      }
+    for (let offset = 0; offset < month.assetIds.length; offset += 20) {
+      const batch = await Promise.all(month.assetIds.slice(offset, offset + 20).map(async (assetId): Promise<PhotoAsset | null> => {
+        try {
+          const asset = new Asset(assetId);
+          const [uri, filename, width, height, creationTime, mediaType] = await Promise.all([
+            asset.getUri(), asset.getFilename(),
+            asset.getWidth().catch(() => null), asset.getHeight().catch(() => null),
+            asset.getCreationTime(), asset.getMediaType(),
+          ]);
+          return { id: assetId, uri, filename, width, height, creationTime: creationTime || 0, mediaType };
+        } catch (error) {
+          console.error('[GalleryProvider] Failed to load asset:', assetId, error);
+          return null;
+        }
+      }));
+      photos.push(...batch.filter((photo): photo is PhotoAsset => photo !== null));
     }
     photos.sort((a, b) => b.creationTime - a.creationTime);
     monthCacheRef.current.set(monthKey, photos);
@@ -160,7 +159,7 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      const permResponse = await getPermissionsAsync();
+      const permResponse = await getPermissionsAsync(false, ['photo']);
       setPermissionStatus(permResponse.status);
       setAccessPrivileges(permResponse.accessPrivileges || null);
       if (permResponse.status === 'granted') await loadMonths();

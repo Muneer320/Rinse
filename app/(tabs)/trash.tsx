@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, View, Text, FlatList, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Asset } from 'expo-media-library';
+import { useFocusEffect } from 'expo-router';
 import { EmptyState } from '../../src/components/EmptyState';
 import { Colors, Spacing, BorderRadius, Typography } from '../../src/utils/theme';
 import { formatRelativeTime } from '../../src/utils/formatters';
@@ -14,23 +15,30 @@ import type { TrashItem } from '../../src/utils/types';
 export default function TrashScreen() {
   const [items, setItems] = useState<TrashItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadItems = useCallback(async () => {
-    const trash = await getTrashItems();
-    setItems(trash);
-    setIsLoading(false);
+    try {
+      setItems(await getTrashItems());
+    } catch (error) {
+      console.error('[TrashScreen] Could not read Trash:', error);
+      Alert.alert('Could not open Trash', 'Your saved Trash records could not be read. No photos were deleted.');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  useEffect(() => {
-    loadItems();
-    const interval = setInterval(loadItems, 3000);
-    return () => clearInterval(interval);
-  }, [loadItems]);
+  useFocusEffect(useCallback(() => { void loadItems(); }, [loadItems]));
 
   const handleRestore = useCallback(async (assetId: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    await removeFromTrash(assetId);
-    await loadItems();
+    try {
+      await removeFromTrash(assetId);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      await loadItems();
+    } catch (error) {
+      console.error('[TrashScreen] Restore failed:', error);
+      Alert.alert('Could not restore', 'The photo is still in Trash. Please try again.');
+    }
   }, [loadItems]);
 
   const handleDeleteForever = useCallback((item: TrashItem) => {
@@ -44,8 +52,13 @@ export default function TrashScreen() {
           try { const asset = new Asset(item.assetId); await Asset.delete([asset]); }
           catch (e2) { console.error('[TrashScreen] Static delete also failed:', e2); Alert.alert('Error', 'Could not delete this photo.'); return; }
         }
-        await removeFromTrash(item.assetId);
-        await loadItems();
+        try {
+          await removeFromTrash(item.assetId);
+          await loadItems();
+        } catch (error) {
+          console.error('[TrashScreen] Could not update Trash after deletion:', error);
+          Alert.alert('Photo deleted', 'The gallery removed the photo, but its Trash record could not be cleared.');
+        }
       }},
     ]);
   }, [loadItems]);
@@ -56,12 +69,17 @@ export default function TrashScreen() {
     Alert.alert('Empty Trash', `Are you sure you want to permanently delete all ${items.length} photo${items.length !== 1 ? 's' : ''}? This action cannot be undone.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete All', style: 'destructive', onPress: async () => {
-        for (const item of items) {
-          try { const asset = new Asset(item.assetId); await asset.delete(); }
-          catch (e) { console.error('[TrashScreen] Bulk delete failed for:', item.assetId, e); }
+        setIsDeleting(true);
+        try {
+          await Asset.delete(items.map(item => new Asset(item.assetId)));
+          await emptyTrash();
+          await loadItems();
+        } catch (error) {
+          console.error('[TrashScreen] Bulk delete failed:', error);
+          Alert.alert('Could not empty Trash', 'The remaining items are still listed. Check your gallery and try again.');
+        } finally {
+          setIsDeleting(false);
         }
-        await emptyTrash();
-        await loadItems();
       }},
     ]);
   }, [items, loadItems]);
@@ -95,7 +113,7 @@ export default function TrashScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Trash</Text>
         {items.length > 0 && (
-          <Pressable style={styles.emptyButton} onPress={handleEmptyAll}>
+          <Pressable style={styles.emptyButton} onPress={handleEmptyAll} disabled={isDeleting}>
             <Text style={styles.emptyButtonText}>Empty All</Text>
           </Pressable>
         )}
@@ -107,7 +125,7 @@ export default function TrashScreen() {
         </View>
       )}
       {items.length === 0 && !isLoading ? (
-        <EmptyState icon="trash-outline" title="Trash is empty" subtitle="Deleted photos will appear here for permanent removal." />
+        <EmptyState icon="trash-outline" title="Trash is empty" subtitle="Photos marked for deletion will appear here." />
       ) : (
         <FlatList data={items} keyExtractor={(item) => item.assetId} renderItem={renderItem} contentContainerStyle={styles.list} showsVerticalScrollIndicator={false} />
       )}

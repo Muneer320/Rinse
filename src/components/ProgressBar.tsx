@@ -42,7 +42,7 @@ export function ProgressBar({ total, reviewed, deleted, kept }: ProgressBarProps
       <View style={styles.legend}>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: Colors.delete }]} />
-          <Text style={styles.legendText}>{deleted} deleted</Text>
+          <Text style={styles.legendText}>{deleted} marked</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: Colors.keep }]} />

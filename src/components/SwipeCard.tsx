@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  runOnJS,
   interpolate,
-  Extrapolate,
+  Extrapolation,
   useAnimatedReaction,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -32,6 +32,8 @@ export function SwipeCard({ photo, isTopCard, index, onSwipeLeft, onSwipeRight }
   const translateY = useSharedValue(0);
   const rotate = useSharedValue(0);
   const thresholdCrossed = useSharedValue(false);
+  const onThresholdHaptic = useCallback(() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); }, []);
+  const onStartHaptic = useCallback(() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }, []);
 
   useAnimatedReaction(
     () => Math.abs(translateX.value),
@@ -39,7 +41,7 @@ export function SwipeCard({ photo, isTopCard, index, onSwipeLeft, onSwipeRight }
       const threshold = SCREEN_WIDTH * SWIPE_THRESHOLD;
       if (absX > threshold && !thresholdCrossed.value) {
         thresholdCrossed.value = true;
-        runOnJS(() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); })();
+        scheduleOnRN(onThresholdHaptic);
       } else if (absX <= threshold && thresholdCrossed.value) {
         thresholdCrossed.value = false;
       }
@@ -51,9 +53,9 @@ export function SwipeCard({ photo, isTopCard, index, onSwipeLeft, onSwipeRight }
     .onUpdate((e) => {
       translateX.value = e.translationX;
       translateY.value = e.translationY;
-      rotate.value = interpolate(e.translationX, [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2], [-12, 0, 12], Extrapolate.CLAMP);
+      rotate.value = interpolate(e.translationX, [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2], [-12, 0, 12], Extrapolation.CLAMP);
     })
-    .onStart(() => { runOnJS(() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); })(); })
+    .onStart(() => { scheduleOnRN(onStartHaptic); })
     .onEnd((e) => {
       const threshold = SCREEN_WIDTH * SWIPE_THRESHOLD;
       const shouldSwipe = Math.abs(e.translationX) > threshold || Math.abs(e.velocityX) > 800;
@@ -61,8 +63,8 @@ export function SwipeCard({ photo, isTopCard, index, onSwipeLeft, onSwipeRight }
         const direction = e.translationX > 0 ? 1 : -1;
         translateX.value = withSpring(direction * SCREEN_WIDTH * 1.5, { damping: 20, stiffness: 200, velocity: e.velocityX });
         translateY.value = withSpring(e.translationY + direction * 100, { damping: 20, stiffness: 200, velocity: e.velocityY });
-        if (direction > 0) runOnJS(onSwipeRight)(photo?.id || '');
-        else runOnJS(onSwipeLeft)(photo?.id || '', photo?.filename);
+        if (direction > 0) scheduleOnRN(onSwipeRight, photo?.id || '');
+        else scheduleOnRN(onSwipeLeft, photo?.id || '', photo?.filename);
       } else {
         translateX.value = withSpring(0, { damping: 15, stiffness: 200 });
         translateY.value = withSpring(0, { damping: 15, stiffness: 200 });
@@ -72,18 +74,18 @@ export function SwipeCard({ photo, isTopCard, index, onSwipeLeft, onSwipeRight }
 
   const cardStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }, { translateY: translateY.value }, { rotate: `${rotate.value}deg` }, { scale: isTopCard ? 1 : 0.95 }],
-    opacity: isTopCard ? 1 : interpolate(Math.abs(translateX.value), [0, SCREEN_WIDTH * SWIPE_THRESHOLD], [1, 0.5], Extrapolate.CLAMP),
+    opacity: isTopCard ? 1 : interpolate(Math.abs(translateX.value), [0, SCREEN_WIDTH * SWIPE_THRESHOLD], [1, 0.5], Extrapolation.CLAMP),
     zIndex: isTopCard ? 10 : 1,
   }));
 
   const deleteOverlayStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateX.value, [-SCREEN_WIDTH * SWIPE_THRESHOLD, 0], [0.8, 0], Extrapolate.CLAMP),
-    transform: [{ scale: interpolate(translateX.value, [-SCREEN_WIDTH * SWIPE_THRESHOLD, 0], [1.2, 0.8], Extrapolate.CLAMP) }],
+    opacity: interpolate(translateX.value, [-SCREEN_WIDTH * SWIPE_THRESHOLD, 0], [0.8, 0], Extrapolation.CLAMP),
+    transform: [{ scale: interpolate(translateX.value, [-SCREEN_WIDTH * SWIPE_THRESHOLD, 0], [1.2, 0.8], Extrapolation.CLAMP) }],
   }));
 
   const keepOverlayStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateX.value, [0, SCREEN_WIDTH * SWIPE_THRESHOLD], [0, 0.8], Extrapolate.CLAMP),
-    transform: [{ scale: interpolate(translateX.value, [0, SCREEN_WIDTH * SWIPE_THRESHOLD], [0.8, 1.2], Extrapolate.CLAMP) }],
+    opacity: interpolate(translateX.value, [0, SCREEN_WIDTH * SWIPE_THRESHOLD], [0, 0.8], Extrapolation.CLAMP),
+    transform: [{ scale: interpolate(translateX.value, [0, SCREEN_WIDTH * SWIPE_THRESHOLD], [0.8, 1.2], Extrapolation.CLAMP) }],
   }));
 
   if (!photo || !photo.uri) {

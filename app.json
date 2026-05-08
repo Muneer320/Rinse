@@ -2,20 +2,23 @@
   "expo": {
     "name": "Rinse",
     "slug": "rinse",
+    "owner": "muneer320",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "scheme": "rinse",
     "ios": {
+      "bundleIdentifier": "com.muneer320.rinse",
+      "buildNumber": "1",
       "supportsTablet": true,
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Rinse needs access to your photo library to help you clean and organize it. No photos are ever uploaded.",
-        "NSPhotoLibraryAddUsageDescription": "Rinse needs this permission to save organized photos."
+        "NSPhotoLibraryUsageDescription": "Rinse needs access to your photo library to help you review it. No photos are uploaded."
       }
     },
     "android": {
       "package": "com.muneer320.rinse",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#0D0D0D",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -24,9 +27,12 @@
       },
       "permissions": [
         "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.READ_MEDIA_VIDEO",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
+      ],
+      "blockedPermissions": [
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_VIDEO"
       ],
       "predictiveBackGestureEnabled": false
     },
@@ -41,12 +47,20 @@
         "expo-media-library",
         {
           "photosPermission": "Rinse needs access to your photos to help you clean your gallery. All processing is on-device.",
-          "saveToGallery": false
+          "saveToGallery": false,
+          "granularPermissions": [
+            "photo"
+          ]
         }
-      ]
+      ],
+      "expo-status-bar",
+      "expo-font"
     ],
-    "experiments": {
-      "tsrPaths": true
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "166323b8-ddad-4be4-be6c-856348051fc5"
+      }
     }
   }
 }
