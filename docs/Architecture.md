@@ -134,13 +134,13 @@ interface SessionState {
 }
 ```
 
-On return, the session resumes from `currentIndex` with all previous swipes intact.
+On return, the session matches saved swipe IDs to the current gallery. Surviving reviewed photos form a prefix, and unreviewed photos follow. The current index is rebuilt from that prefix so added or removed photos cannot shift an unreviewed photo behind the saved position. Swipes for photos no longer in the library are dropped from the session view.
 
 ### 3.4 Durable Trash and Undo
 
 When a user swipes left, the app first writes a record to its local Trash list. The gallery file stays in place. Then:
 
-1. A toast offers Undo for five seconds.
+1. A toast above the review controls offers Undo for five seconds, until the next review choice.
 2. If the timer expires, the record remains in Trash for later review.
 3. If the user taps Undo, the record is removed and the card returns.
 4. Only explicit confirmation in the Trash screen asks the system to delete a gallery file. Empty All uses one batch request and keeps the records if it fails.

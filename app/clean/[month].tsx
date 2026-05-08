@@ -106,7 +106,7 @@ export default function CleanScreen() {
         <Pressable onPress={handleBack} style={styles.backButton}><Ionicons name="chevron-back" size={28} color={Colors.text} /></Pressable>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>{getMonthLabel(month)}</Text>
-          <Text style={styles.headerCount}>{progress.reviewed + (session.isComplete ? 0 : 1)} / {progress.total}</Text>
+          <Text style={styles.headerCount}>{Math.min(progress.reviewed + 1, progress.total)} / {progress.total}</Text>
         </View>
         <View style={styles.backButton} />
       </View>

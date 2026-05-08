@@ -7,12 +7,14 @@ import * as Haptics from 'expo-haptics';
 import { Asset } from 'expo-media-library';
 import { useFocusEffect } from 'expo-router';
 import { EmptyState } from '../../src/components/EmptyState';
+import { useGallery } from '../../src/providers/GalleryProvider';
 import { Colors, Spacing, BorderRadius, Typography } from '../../src/utils/theme';
 import { formatRelativeTime } from '../../src/utils/formatters';
 import { getTrashItems, removeFromTrash, emptyTrash } from '../../src/storage/trashStorage';
 import type { TrashItem } from '../../src/utils/types';
 
 export default function TrashScreen() {
+  const { refresh: refreshLibrary } = useGallery();
   const [items, setItems] = useState<TrashItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -53,6 +55,7 @@ export default function TrashScreen() {
           await Asset.delete([new Asset(item.assetId)]);
           await removeFromTrash(item.assetId);
           await loadItems();
+          await refreshLibrary();
         } catch (error) {
           console.error('[TrashScreen] Delete did not finish:', error);
           Alert.alert('Delete not completed', 'The item remains listed in Trash. Check your gallery before trying again.');
@@ -61,7 +64,7 @@ export default function TrashScreen() {
         }
       }},
     ]);
-  }, [isDeleting, loadItems]);
+  }, [isDeleting, loadItems, refreshLibrary]);
 
   const handleEmptyAll = useCallback(() => {
     if (isDeleting || items.length === 0) return;
@@ -74,6 +77,7 @@ export default function TrashScreen() {
           await Asset.delete(items.map(item => new Asset(item.assetId)));
           await emptyTrash();
           await loadItems();
+          await refreshLibrary();
         } catch (error) {
           console.error('[TrashScreen] Bulk delete failed:', error);
           Alert.alert('Could not empty Trash', 'The remaining items are still listed. Check your gallery and try again.');
@@ -82,7 +86,7 @@ export default function TrashScreen() {
         }
       }},
     ]);
-  }, [isDeleting, items, loadItems]);
+  }, [isDeleting, items, loadItems, refreshLibrary]);
 
   const renderItem = ({ item }: { item: TrashItem }) => (
     <View style={styles.trashItem}>

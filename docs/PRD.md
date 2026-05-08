@@ -142,4 +142,4 @@ Rinse is a mobile application that helps users review their photo libraries usin
 | M4 | UI Components (SwipeCard, MonthCard, etc.) | ✅ Done |
 | M5 | Screens (Months list, Clean session, Trash) | ✅ Done |
 | M6 | Integration & Navigation | ✅ Done |
-| M7 | Testing & Polish | In progress: storage/session tests and Android bundle pass; native photo flow still requires emulator verification |
+| M7 | Testing & Polish | Android prototype verified: session/storage tests, release APK and emulator photo/Undo/Trash/delete flow. Physical devices, iOS and store submission remain unverified. |
