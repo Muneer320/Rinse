@@ -135,7 +135,7 @@ export default function CleanScreen() {
         <View style={styles.actionBar}>
           <Pressable style={styles.actionButton} onPress={() => session.swipeLeft(currentPhoto.id, currentPhoto.filename)}>
             <Ionicons name="trash-outline" size={28} color={Colors.delete} />
-            <Text style={[styles.actionLabel, { color: Colors.delete }]}>Delete</Text>
+            <Text style={[styles.actionLabel, { color: Colors.delete }]}>Mark</Text>
           </Pressable>
           <Pressable style={[styles.actionButton, styles.skipButton]} onPress={() => session.skipPhoto()}>
             <Ionicons name="play-skip-forward-outline" size={24} color={Colors.textSecondary} />

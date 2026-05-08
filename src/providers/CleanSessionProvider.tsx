@@ -8,7 +8,7 @@ import { recordSwipeAction, reverseSwipeAction } from '../storage/statsStorage';
 import { getMonthLabel } from '../utils/formatters';
 import type { PhotoAsset, SessionState, SwipeAction, TrashItem } from '../utils/types';
 
-type PendingUndo = { assetId: string; index: number; timeoutId: ReturnType<typeof setTimeout> };
+type PendingUndo = { assetId: string; index: number; timeoutId: ReturnType<typeof setTimeout> | null };
 interface CleanSessionContextValue {
   monthKey: string | null;
   photos: PhotoAsset[];
@@ -45,11 +45,11 @@ export function CleanSessionProvider({ children }: { children: React.ReactNode }
   const [swipes, setSwipes] = useState<SwipeAction[]>([]);
   const state = useRef({ monthKey: null as string | null, photos: [] as PhotoAsset[], index: 0, swipes: [] as SwipeAction[], pending: null as PendingUndo | null, busy: false });
   useEffect(() => () => {
-    if (state.current.pending) clearTimeout(state.current.pending.timeoutId);
+    if (state.current.pending?.timeoutId) clearTimeout(state.current.pending.timeoutId);
   }, []);
 
   const clearPending = useCallback(() => {
-    if (state.current.pending) clearTimeout(state.current.pending.timeoutId);
+    if (state.current.pending?.timeoutId) clearTimeout(state.current.pending.timeoutId);
     state.current.pending = null;
     setPendingUndo(null);
   }, []);
@@ -107,6 +107,20 @@ export function CleanSessionProvider({ children }: { children: React.ReactNode }
     if (state.current.index >= state.current.photos.length && !waitForUndo) await finish();
   }, [finish, persist]);
 
+  const schedulePendingExpiry = useCallback((pending: PendingUndo) => {
+    const expire = async () => {
+      if (state.current.pending !== pending) return;
+      if (state.current.busy) {
+        pending.timeoutId = setTimeout(expire, 100);
+        return;
+      }
+      state.current.pending = null;
+      setPendingUndo(null);
+      if (state.current.index >= state.current.photos.length) await finish();
+    };
+    pending.timeoutId = setTimeout(expire, UNDO_TIMEOUT_MS);
+  }, [finish]);
+
   const swipeLeft = useCallback(async (assetId: string, filename?: string) => {
     const current = state.current;
     const photo = current.photos[current.index];
@@ -121,20 +135,17 @@ export function CleanSessionProvider({ children }: { children: React.ReactNode }
       const action: SwipeAction = { assetId, action: 'delete', timestamp: Date.now() };
       await advance(action, true);
       await recordSwipeAction(key, 'delete');
-      const pending: PendingUndo = { assetId, index: current.index - 1, timeoutId: setTimeout(async () => {
-        state.current.pending = null;
-        setPendingUndo(null);
-        if (state.current.index >= state.current.photos.length) await finish();
-      }, UNDO_TIMEOUT_MS) };
+      const pending: PendingUndo = { assetId, index: current.index - 1, timeoutId: null };
       state.current.pending = pending;
       setPendingUndo(pending);
+      schedulePendingExpiry(pending);
     } catch (error) {
       console.error('[CleanSessionProvider] Could not queue photo for deletion:', error);
       Alert.alert('Could not queue photo', 'The photo was not marked for deletion. Please try again.');
     } finally {
       current.busy = false;
     }
-  }, [advance, clearPending, finish]);
+  }, [advance, clearPending, schedulePendingExpiry]);
 
   const swipeRight = useCallback(async (assetId: string) => {
     const current = state.current;

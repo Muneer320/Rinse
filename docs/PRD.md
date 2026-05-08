@@ -8,10 +8,9 @@ Rinse is a mobile application that helps users review their photo libraries usin
 
 ## 2. Problem Statement
 
-- The average smartphone has thousands of photos, most never looked at again
--Bulk photo managers show grids that overwhelm users
-- Apple/Google Photos "clean" features are limited and not gamified
-- Users want a fast, satisfying way to triage photos
+- Large photo libraries are hard to review one image at a time.
+- A month-by-month review gives users a smaller, clear task.
+- Users need a chance to restore a marked photo before permanent deletion.
 
 ## 3. Target Users
 
@@ -27,7 +26,7 @@ Rinse is a mobile application that helps users review their photo libraries usin
 - Group photos by month for manageable chunks
 - Track progress and stats to motivate users
 - Offer undo and trash to prevent accidental data loss
-- 100% on-device — no data ever leaves the phone
+- Keep gallery photos and review records on the device in the app implementation.
 
 ### Non-Goals
 
@@ -61,10 +60,10 @@ Rinse is a mobile application that helps users review their photo libraries usin
 
 | # | Story | Priority |
 |---|-------|----------|
-| 9 | As a user, I want to swipe left to delete a photo | P0 |
+| 9 | As a user, I want to swipe left to mark a photo for Trash | P0 |
 | 10 | As a user, I want to swipe right to keep a photo | P0 |
 | 11 | As a user, I want to see the next card behind the current one | P0 |
-| 12 | As a user, I want to tap buttons to delete/keep/skip as an alternative to swiping | P0 |
+| 12 | As a user, I want to tap buttons to mark/keep/skip as an alternative to swiping | P0 |
 | 13 | As a user, I want haptic feedback when swiping | P1 |
 | 14 | As a user, I want to see a progress bar during the session | P0 |
 | 15 | As a user, I want to close the session and resume later from where I left off | P0 |
@@ -84,7 +83,7 @@ Rinse is a mobile application that helps users review their photo libraries usin
 
 | # | Story | Priority |
 |---|-------|----------|
-| 22 | As a user, I want to see total photos reviewed, deleted, kept | P1 |
+| 22 | As a user, I want to see total photos reviewed and marked for Trash | P1 |
 | 23 | As a user, I want to see space freed estimates (not implemented; no reliable size data) | P2 |
 
 ## 6. Design Specifications
@@ -96,7 +95,7 @@ Rinse is a mobile application that helps users review their photo libraries usin
 - **Delete:** #FF3B30 (red)
 - **Keep:** #34C759 (green)
 - **Text:** #FFFFFF (white)
-- **Style:** Dark, minimal, glassmorphism accents
+- **Style:** Dark and minimal
 
 ### Typography
 
@@ -121,9 +120,10 @@ Rinse is a mobile application that helps users review their photo libraries usin
 
 ### Performance
 
-- Photo loading: paginated, 100 per batch
-- Card rendering: max 3 cards in stack at a time
-- Session resume: < 500ms from tap to first card
+- Library scan: paginated metadata; a complete scan is still needed to build the month list
+- Selected month: load photo records in batches of 20 before showing cards
+- Card rendering: current card and next card
+- Session resume: persisted position; no measured time target yet
 
 ### Privacy
 

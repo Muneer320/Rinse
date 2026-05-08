@@ -81,8 +81,9 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
 
         if (results.length === 0) { hasMore = false; break; }
         for (const meta of results) {
-          if (meta.creationTime === null) continue;
-          const monthKey = getMonthKey(meta.creationTime);
+          const timestamp = meta.creationTime ?? meta.modificationTime;
+          if (timestamp === null) continue;
+          const monthKey = getMonthKey(timestamp);
           if (!monthMap.has(monthKey)) monthMap.set(monthKey, { ids: [] });
           monthMap.get(monthKey)!.ids.push(meta.id);
         }
@@ -134,12 +135,12 @@ export function GalleryProvider({ children }: { children: React.ReactNode }) {
       const batch = await Promise.all(month.assetIds.slice(offset, offset + 20).map(async (assetId): Promise<PhotoAsset | null> => {
         try {
           const asset = new Asset(assetId);
-          const [uri, filename, width, height, creationTime, mediaType] = await Promise.all([
+          const [uri, filename, width, height, creationTime, modificationTime, mediaType] = await Promise.all([
             asset.getUri(), asset.getFilename(),
             asset.getWidth().catch(() => null), asset.getHeight().catch(() => null),
-            asset.getCreationTime(), asset.getMediaType(),
+            asset.getCreationTime().catch(() => null), asset.getModificationTime().catch(() => null), asset.getMediaType(),
           ]);
-          return { id: assetId, uri, filename, width, height, creationTime: creationTime || 0, mediaType };
+          return { id: assetId, uri, filename, width, height, creationTime: creationTime ?? modificationTime ?? 0, mediaType };
         } catch (error) {
           console.error('[GalleryProvider] Failed to load asset:', assetId, error);
           return null;
